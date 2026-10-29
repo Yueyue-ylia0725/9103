@@ -175,7 +175,8 @@ class GardenForegroundFlower {
 
   g.translate(this.x, this.y);
   g.rotate(this.rotation);
-
+  g.scale(this.growthScale);
+  
   g.image( this.sprite, -this.sprite.width / 2, -this.sprite.height / 2 );
 
   g.pop();
