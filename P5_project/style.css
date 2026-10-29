@@ -1,8 +1,1 @@
-html, body {
-  margin: 0;
-  padding: 0;
-}
-
-canvas {
-  display: block;
-}
+canvas { display: block; width: auto !important; height: auto !important; max-width: 100%; max-height: calc(100vh - 42px); }

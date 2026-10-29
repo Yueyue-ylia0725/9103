@@ -1,7 +1,15 @@
+let noiseGarden;
+
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(780, 1000);
+  noiseGarden = new NoiseGarden();
+  // Other mechanics: initialize here after their scripts are added.
 }
 
 function draw() {
-  background(220);
+  // Other mechanics: update shared garden state here if needed.
+  if (typeof noiseGarden.update === 'function') {
+    noiseGarden.update(deltaTime / 1000);
+  }
+  noiseGarden.display();
 }
