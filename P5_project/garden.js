@@ -176,7 +176,9 @@ class GardenForegroundFlower {
   g.translate(this.x, this.y);
   g.rotate(this.rotation);
   g.scale(this.growthScale);
-  
+  // tint() controls image opacity: https://p5js.org/reference/p5/tint/
+  g.tint(255, this.lifeOpacity);
+
   g.image( this.sprite, -this.sprite.width / 2, -this.sprite.height / 2 );
 
   g.pop();
