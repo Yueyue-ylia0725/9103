@@ -154,3 +154,106 @@ function drawInput() {
     flower.display();
   }
 }
+
+// Store the temporary petals and leaves separately from falling flowers.
+// Each trail mark has its own position, appearance and fading opacity.
+let trailElements = [];
+let nextTrailIsLeaf = false;
+
+class TrailElement {
+  constructor(x, y, isLeaf) {
+    // Remember where the mouse was when this mark was created.
+    // The mark stays at this position while the mouse moves on.
+    this.x = x;
+    this.y = y;
+    this.isLeaf = isLeaf;
+
+    // Vary the size and angle slightly to avoid identical repeated marks.
+    this.size = random(10, 18);
+    this.angle = random(TWO_PI);
+    this.opacity = 200;
+
+    // Store RGB values from the garden palette.
+    // Keeping colours in a limited palette connects the trail to the garden.
+    if (this.isLeaf) {
+      this.colour = random([
+        [99, 146, 100],
+        [115, 160, 88],
+        [83, 132, 116]
+      ]);
+    } else {
+      this.colour = random([
+        [239, 151, 148],
+        [247, 172, 39],
+        [225, 128, 156]
+      ]);
+    }
+  }
+
+  update() {
+    // Lower opacity every frame so the trail gradually disappears.
+    // At 60 frames per second, each mark lasts about 0.8 seconds.
+    this.opacity -= 2;
+  }
+
+  display() {
+    // Isolate drawing settings from the other garden mechanics.
+    push();
+
+    // Move the origin to this mark, then rotate its local drawing space.
+    translate(this.x, this.y);
+    angleMode(RADIANS);
+    rotate(this.angle);
+    ellipseMode(CENTER);
+    noStroke();
+
+    // Keep the same colour while reducing its alpha (transparency).
+    fill(
+      this.colour[0],
+      this.colour[1],
+      this.colour[2],
+      this.opacity
+    );
+
+    // Use a narrow ellipse for a leaf and a wider ellipse for a petal.
+    if (this.isLeaf) {
+      ellipse(0, 0, this.size, this.size * 0.4);
+    } else {
+      ellipse(0, 0, this.size * 0.65, this.size);
+    }
+
+    pop();
+  }
+}
+
+function createInputTrail(x, y) {
+  // Create one mark at the current mouse position.
+  trailElements.push(
+    new TrailElement(x, y, nextTrailIsLeaf)
+  );
+
+  // Alternate petals and leaves instead of generating only one type.
+  nextTrailIsLeaf = !nextTrailIsLeaf;
+}
+
+function updateInputTrail() {
+  // Keep only visible marks, so faded objects do not accumulate.
+  let remainingTrail = [];
+
+  for (const element of trailElements) {
+    element.update();
+
+    if (element.opacity > 0) {
+      remainingTrail.push(element);
+    }
+  }
+
+  trailElements = remainingTrail;
+}
+
+function drawInputTrail() {
+  // The garden is redrawn each frame, so active marks must also be redrawn.
+  for (const element of trailElements) {
+    element.display();
+  }
+}
