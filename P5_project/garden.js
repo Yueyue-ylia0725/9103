@@ -2,7 +2,7 @@
 const NOISE_GARDEN = {
   width: 780, height: 1000,
   speed: 0.55,
-  motion: { background: 0.25, leaf: 15, flower: 20, foreground: 2 },
+  motion: { background: 0.25, leaf: 15, flower: 16, foreground: 2 },
   contourTolerance: 2.2,
   seamOverlap: 2,
   maxMovingRegions: 500
@@ -189,7 +189,8 @@ class NoiseGarden {
   constructor() {
     this.baseLayer=createGraphics(NOISE_GARDEN.width,NOISE_GARDEN.height);
     this.structureLayer=createGraphics(NOISE_GARDEN.width,NOISE_GARDEN.height);
-    for(const g of [this.baseLayer,this.structureLayer]){g.pixelDensity(2);g.angleMode(RADIANS);}
+    this.goldLineLayer=createGraphics(NOISE_GARDEN.width,NOISE_GARDEN.height);
+    for(const g of [this.baseLayer,this.structureLayer,this.goldLineLayer]){g.pixelDensity(2);g.angleMode(RADIANS);}
     this.flowers=[];this.generateGarden(9103);
   }
 
@@ -219,8 +220,12 @@ class NoiseGarden {
       g.fill(random(['#436745','#6C8C5D','#A8B38E','#538474']));
       g.rect(x,y,25,23,4);
     }
+    // Preserve the unpainted ground for ghost-free local gold animation.
+    this.goldUnderpaint=g.get();
     for(const mark of this.marks)mark.display(g);
-    this.drawGold(g);
+    this.goldLineLayer.clear();
+    this.drawGold(this.goldLineLayer);
+    g.image(this.goldLineLayer,0,0);
     this.structureLayer.clear();
     for(const mark of this.marks)if(mark.kind==='fixed')mark.display(this.structureLayer);
   }
@@ -228,7 +233,7 @@ class NoiseGarden {
   drawGold(g) {
     g.push();g.noFill();g.strokeCap(ROUND);
     // Continuous strands restore line identity above the sampled gold colour field.
-    for(let i=0;i<17;i++){
+    for(let i=0;i<1;i++){
       const x=240+i*9.3+random(-2,2),end=random(600,805),phase=random(Math.PI*2);
       g.stroke(i%4===0?'#E2C375':'#E29C2F');g.strokeWeight(random(1.9,3.1));
       g.beginShape();
@@ -250,6 +255,8 @@ class NoiseGarden {
     scale(width/NOISE_GARDEN.width,height/NOISE_GARDEN.height);
     for(const mark of this.moving)mark.display(window, typeof this.update === "function");
     image(this.structureLayer,0,0);
+    // Gold sway and its matching light mask are drawn below foreground flowers.
+    if (this.goldFlow) this.goldFlow.display(window);
     // Foreground flowers draw last, as separate sprites with their own noise motion.
     for(const flower of this.flowers)flower.display(window);
     pop();
