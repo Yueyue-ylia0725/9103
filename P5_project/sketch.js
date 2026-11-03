@@ -4,12 +4,17 @@ let noiseGarden;
 let lastTrailX = -100;
 let lastTrailY = -100;
 
+function preload() {
+  preloadGardenAudio();
+}
+
 function setup() {
   createCanvas(780, 1000);
   noiseGarden = new NoiseGarden();
 
   // Initialise the existing time-based flower growth.
   setupTimeMechanic();
+  setupGardenAudio();
 }
 
 function draw() {
@@ -22,6 +27,7 @@ function draw() {
 
   // Update growth before drawing the garden.
   updateTimeMechanic();
+  updateGardenAudio();
   noiseGarden.display();
 
   // Draw falling flowers above the garden.
