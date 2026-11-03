@@ -2,7 +2,7 @@
 const NOISE_GARDEN = {
   width: 780, height: 1000,
   speed: 0.55,
-  motion: { background: 0.25, leaf: 15, flower: 16, foreground: 2 },
+  motion: { background: 0.25, leaf: 20, flower: 25, foreground: 2 },
   contourTolerance: 2.2,
   seamOverlap: 2,
   maxMovingRegions: 500
@@ -27,7 +27,7 @@ const GARDEN_BLOOMS = [
   [515,880,21,'#153B60','#E2C375',10],
   [637,951,26,'#35528E','#ACA253',8],
   [317,932,25,'#35528E','#ACA253',10],
-  [310,902,23,'#A92E33','#D4A736',10]
+  [310,902,23,'#A92E33','#D4A736',10],
 ];
 
 // Remove pixel-sized stair steps before rounding the larger retained contour.
@@ -146,44 +146,20 @@ class GardenForegroundFlower {
 
 
 
-  display(g) {
-  g.push();
-  // Draw the bending stem
-  g.noFill();
-  g.stroke('#436745');
-  g.strokeWeight(3);
-  g.strokeCap(ROUND);
-
-  // Stem base remains fixed
-  const bottomX = this.stemBaseX;
-  const bottomY = this.stemBaseY;
-
-  // Flower head moves with Perlin Noise
-  const topX = this.x;
-  const topY = this.y;
-
-  // Curved stem using Bezier
-  g.bezier(
-    bottomX, bottomY,
-    bottomX, bottomY - this.stemLength * 0.35,
-    topX - this.sway * 0.3,
-    topY + this.stemLength * 0.35,
-    topX, topY);
-
-  // Draw the flower head at the stem tip
-  g.push();
-
-  g.translate(this.x, this.y);
-  g.rotate(this.rotation);
-  g.scale(this.growthScale);
-  // tint() controls image opacity: https://p5js.org/reference/p5/tint/
-  g.tint(255, this.lifeOpacity);
-
-  g.image( this.sprite, -this.sprite.width / 2, -this.sprite.height / 2 );
-
-  g.pop();
-  g.pop();
+  displayStem(g) {
+    g.push();g.noFill();g.stroke('#436745');g.strokeWeight(3);g.strokeCap(ROUND);
+    g.bezier(this.stemBaseX,this.stemBaseY,
+      this.stemBaseX,this.stemBaseY-this.stemLength*0.35,
+      this.x-this.sway*0.3,this.y+this.stemLength*0.35,this.x,this.y);
+    g.pop();
   }
+
+  displayHead(g) {
+    g.push();g.translate(this.x,this.y);g.rotate(this.rotation);
+    g.image(this.sprite,-this.sprite.width/2,-this.sprite.height/2);g.pop();
+  }
+
+  display(g) { this.displayStem(g);this.displayHead(g); }
   dispose() { this.sprite.remove(); }
 
 }
@@ -204,6 +180,18 @@ class NoiseGarden {
     if (typeof noiseSeed === "function") noiseSeed(seed);
     for(const flower of this.flowers)flower.dispose();
     this.flowers=GARDEN_BLOOMS.map(spec=>new GardenForegroundFlower(spec));
+    // AI-assisted: change draw order only, preserving seeded sprite/motion creation.
+    this.flowerDrawOrder=this.flowers.slice();
+    // Left: blue over red. Right: yellow over blue. Use stable original anchors.
+    const overlaps=[[317,932,310,902],[531,932,515,880]];
+    for(const [frontX,frontY,backX,backY] of overlaps){
+      const front=this.flowerDrawOrder.findIndex(f=>f.baseX===frontX && f.baseY===frontY);
+      const back=this.flowerDrawOrder.findIndex(f=>f.baseX===backX && f.baseY===backY);
+      if(front>=0 && back>=0 && front<back){
+        [this.flowerDrawOrder[front],this.flowerDrawOrder[back]]=
+          [this.flowerDrawOrder[back],this.flowerDrawOrder[front]];
+      }
+    }
     const regions=GARDEN_REFERENCE_SHAPES.map(region=>new NoiseGardenMark(region));
     // Remove old connected flower bodies before drawing the independent blooms.
     // In particular the two yellow flowers must no longer share one silhouette.
@@ -213,6 +201,15 @@ class NoiseGarden {
         && Math.hypot(mark.baseX-x,mark.baseY-y)<r*1.55
         && gardenColourDistance(mark.colour,body)<72;
     }));
+    // AI-assisted: lift EXISTING foreground paint above stems without a solid veil.
+    // The irregular silhouettes stay at their original coordinates and colours.
+    // A soft selection envelope is lower in the middle; it never clips a contour.
+    this.foregroundOccluders=this.marks.filter(mark=>{
+      const b=mark.bounds;
+      const edge=940+26*Math.exp(-Math.pow((mark.baseX-450)/240,2));
+      return mark.baseY>=edge && b.top>=910
+        && b.right-b.left<=85 && b.bottom-b.top<=85;
+    });
     this.moving=this.marks.filter(m=>m.kind!=='fixed' && m.points.length<100
       && !GARDEN_BLOOMS.some(([x,y,r])=>Math.hypot(m.baseX-x,m.baseY-y)<r+12))
       .filter(()=>random()<0.35).slice(0,NOISE_GARDEN.maxMovingRegions);
@@ -260,8 +257,13 @@ class NoiseGarden {
     image(this.structureLayer,0,0);
     // Gold sway and its matching light mask are drawn below foreground flowers.
     if (this.goldFlow) this.goldFlow.display(window);
+    // The upper green canopy has its own wind controls and clean local repaint.
+    if (this.canopyMotion && this.goldFlow) this.canopyMotion.display(window,this);
     // Foreground flowers draw last, as separate sprites with their own noise motion.
-    for(const flower of this.flowers)flower.display(window);
+    for(const flower of this.flowerDrawOrder)flower.displayStem(window);
+    // Repaint complete original blocks; gaps and staggered edges stay organic.
+    for(const mark of this.foregroundOccluders)mark.display(window,this.moving.includes(mark));
+    for(const flower of this.flowerDrawOrder)flower.displayHead(window);
     pop();
   }
 }

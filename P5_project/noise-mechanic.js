@@ -1,8 +1,66 @@
+// AI-assisted with Codex: independently controlled leaves in the circled canopy.
+const CANOPY_MOTION = {
+  enabled: true,
+  top: 0, bottom: 200,  // Eligible leaf anchors in the 780 x 1000 reference canvas.
+  amplitudeX: 15, amplitudeY: 4,
+  speed: 0.55
+};
+
+class CanopySway {
+  constructor(garden) {
+    this.sourceMarks=garden.marks;
+    this.selected=new Set(garden.marks.filter(mark=>this.isLeaf(mark)));
+    // Include complete selected contours plus motion margins, not just their anchors.
+    this.height=Math.min(NOISE_GARDEN.height,Math.ceil(Math.max(CANOPY_MOTION.bottom,
+      ...Array.from(this.selected,m=>m.bounds.bottom))+40));
+    this.scene=createGraphics(NOISE_GARDEN.width,this.height);
+    this.scene.pixelDensity(2);this.scene.angleMode(RADIANS);
+    this.regionMarks=garden.marks.filter(mark=>mark.bounds.top<this.height+30);
+  }
+
+  isLeaf(mark) {
+    const c=mark.colour;
+    const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+    // Navy trunks, blue sky, pink flowers and gold are excluded by colour.
+    return mark.baseY>=CANOPY_MOTION.top && mark.baseY<=CANOPY_MOTION.bottom
+      && mark.bounds.bottom-mark.bounds.top<230
+      && g>55 && g>r*0.98 && g>b*1.08;
+  }
+
+  update(seconds) {
+    const c=CANOPY_MOTION,t=seconds*c.speed;
+    for(const mark of this.selected){
+      // Neighbouring leaves share a wind field, with gentle individual variation.
+      const offset=mark.baseX*0.008+mark.baseY*0.004+500;
+      const wind=(noise(offset,t)-noise(offset,0))*2;
+      const detail=(noise(mark.offset,t)-noise(mark.offset,0))*2;
+      const lift=(noise(offset+300,t)-noise(offset+300,0))*2;
+      mark.x=c.enabled?Math.max(-1,Math.min(1,wind*0.8+detail*0.2))*c.amplitudeX*mark.strength:0;
+      mark.y=c.enabled?Math.max(-1,Math.min(1,lift))*c.amplitudeY*mark.strength:0;
+    }
+  }
+
+  display(g,garden) {
+    const scene=this.scene,gold=garden.goldFlow;
+    scene.clear();scene.push();scene.image(garden.goldUnderpaint,0,0);
+    const independent=mark=>this.selected.has(mark)||gold.selected.has(mark);
+    // Repaint from the clean underpainting: no static duplicates behind moving leaves.
+    for(const mark of this.regionMarks)mark.display(scene,independent(mark));
+    scene.image(garden.goldLineLayer,0,0);
+    for(const mark of this.regionMarks)if(garden.moving.includes(mark))mark.display(scene,true);
+    for(const mark of this.regionMarks)if(mark.kind==='fixed')mark.display(scene,independent(mark));
+    gold.displayLight(scene);
+    scene.pop();g.image(scene,0,0);
+  }
+
+  dispose(){this.scene.remove();}
+}
+
 // AI-assisted with Codex: independently adjustable gold sway and masked noise light.
 const GOLD_MOTION = {
   enabled: true,
-  amplitudeX: 2, // Maximum horizontal offset in reference-canvas pixels.
-  amplitudeY: 6,  // Maximum vertical offset; set both amplitudes to 0 to stop sway.
+  amplitudeX: 6, // Maximum horizontal offset in reference-canvas pixels.
+  amplitudeY: 8,  // Maximum vertical offset; set both amplitudes to 0 to stop sway.
   speed: 0.65    // Gold-only noise time scale, independent of the leaves/flowers.
 };
 
@@ -119,14 +177,15 @@ class GoldFlowEffect {
     for(const mark of this.regionMarks)mark.display(g,this.selected.has(mark));
     g.image(this.lines,0,0);
     for(const mark of this.regionMarks)if(this.moving.has(mark))mark.display(g,true);
-    for(const mark of this.regionMarks)if(mark.kind==='fixed')mark.display(g,this.selected.has(mark));
+    for(const mark of this.regionMarks)if(mark.kind==='fixed')mark.display(g,this.selected.has(mark)||this.moving.has(mark));
     g.pop();
   }
 
   display(g) {
     g.image(this.scene,GOLD_FLOW.left,GOLD_FLOW.top);
-    g.image(this.layer,GOLD_FLOW.left,GOLD_FLOW.top);
+    this.displayLight(g);
   }
+  displayLight(g) { g.image(this.layer,GOLD_FLOW.left,GOLD_FLOW.top); }
   dispose() { this.mask.remove();this.layer.remove();this.scene.remove(); }
 }
 
@@ -145,17 +204,23 @@ GardenForegroundFlower.prototype.update = function(t) {
   };
 
 NoiseGarden.prototype.update = function(dt) {
+    if (!this.canopyMotion || this.canopyMotion.sourceMarks !== this.marks) {
+      if (this.canopyMotion) this.canopyMotion.dispose();
+      this.canopyMotion = new CanopySway(this);
+      this.moving = this.moving.filter(mark => !this.canopyMotion.selected.has(mark));
+    }
     if (!this.goldFlow || this.goldFlow.sourceMarks !== this.marks) {
       if (this.goldFlow) this.goldFlow.dispose();
       // Gold uses its own update path, never the leaf/flower amplitude settings.
       const goldMarks=new Set(this.marks.filter(mark=>GoldFlowEffect.prototype.isGold(mark)));
       this.moving=this.moving.filter(mark=>!goldMarks.has(mark));
-      this.goldFlow = new GoldFlowEffect(this.marks,this.goldUnderpaint,this.goldLineLayer,this.moving);
+      this.goldFlow = new GoldFlowEffect(this.marks,this.goldUnderpaint,this.goldLineLayer,[...this.moving,...this.canopyMotion.selected]);
     }
     this.elapsed+=Math.min(Math.max(dt,0),0.1);
     const t=this.elapsed*NOISE_GARDEN.speed;
     for(const mark of this.moving)mark.update(t);
     for(const flower of this.flowers)flower.update(t);
+    this.canopyMotion.update(this.elapsed);
     this.goldFlow.updateGoldMotion(this.elapsed);
     this.goldFlow.update(this.elapsed);
   };
