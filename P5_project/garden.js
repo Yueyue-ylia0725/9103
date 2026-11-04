@@ -155,9 +155,24 @@ class GardenForegroundFlower {
   }
 
   displayHead(g) {
-    g.push();g.translate(this.x,this.y);g.rotate(this.rotation);
-    g.image(this.sprite,-this.sprite.width/2,-this.sprite.height/2);g.pop();
-  }
+  g.push();
+  g.translate(this.x, this.y);
+  g.rotate(this.rotation);
+
+  // Apply the time-based flower growth.
+  g.scale(this.growthScale);
+
+  // Control image opacity: https://p5js.org/reference/p5/tint/
+  g.tint(255, this.lifeOpacity);
+
+  g.image(
+    this.sprite,
+    -this.sprite.width / 2,
+    -this.sprite.height / 2
+  );
+
+  g.pop();
+}
 
   display(g) { this.displayStem(g);this.displayHead(g); }
   dispose() { this.sprite.remove(); }

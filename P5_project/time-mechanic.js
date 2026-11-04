@@ -6,42 +6,68 @@ let growthStartFrame;
 let growthDuration = 600; // About 10 seconds at 60 FPS.
 let bloomDuration = 300;  // About 5 seconds.
 let fadeDuration = 300;   // About 5 seconds.
+let maxBloomDelay = 240;  // Spread flower starts across about 4 seconds.
 
 function setupTimeMechanic() {
   growthStartFrame = frameCount;
 
-  for (let flower of noiseGarden.flowers) {
+  for (let i = 0; i < noiseGarden.flowers.length; i++) {
+    let flower = noiseGarden.flowers[i];
+
+    // Give each flower a different starting time.
+    flower.bloomDelay = map(
+      i,
+      0,
+      noiseGarden.flowers.length - 1,
+      0,
+      maxBloomDelay
+    );
+
     flower.growthScale = 0.1;
-    flower.lifeOpacity = 255;
+    flower.lifeOpacity = 0;
   }
 }
 
 function updateTimeMechanic() {
-  let cycleDuration = growthDuration + bloomDuration + fadeDuration;
+  let flowerDuration = growthDuration + bloomDuration + fadeDuration;
 
-  // Repeat the timeline from 0 each cycle.
+  // Allow the last flower to finish before the garden starts again.
+  let cycleDuration = flowerDuration + maxBloomDelay;
   let cycleFrame = (frameCount - growthStartFrame) % cycleDuration;
 
   for (let flower of noiseGarden.flowers) {
-    if (cycleFrame < growthDuration) {
-      // Stage 1: grow while remaining fully opaque.
-      let progress = constrain(cycleFrame / growthDuration, 0, 1);
+    // Each flower follows the same stages, starting at a different time.
+    let localFrame = cycleFrame - flower.bloomDelay;
+
+    if (localFrame < 0) {
+      // Wait until this flower's start time.
+      flower.growthScale = 0.1;
+      flower.lifeOpacity = 0;
+
+    } else if (localFrame < growthDuration) {
+      // Grow while remaining fully opaque.
+      let progress = constrain(localFrame / growthDuration, 0, 1);
 
       flower.growthScale = lerp(0.1, 1, progress);
       flower.lifeOpacity = 255;
 
-    } else if (cycleFrame < growthDuration + bloomDuration) {
-      // Stage 2: remain fully grown and fully opaque.
+    } else if (localFrame < growthDuration + bloomDuration) {
+      // Remain in full bloom.
       flower.growthScale = 1;
       flower.lifeOpacity = 255;
 
-    } else {
-      // Stage 3: keep the size and gradually fade out.
-      let fadeFrame = cycleFrame - growthDuration - bloomDuration;
+    } else if (localFrame < flowerDuration) {
+      // Gradually fade after blooming.
+      let fadeFrame = localFrame - growthDuration - bloomDuration;
       let progress = constrain(fadeFrame / fadeDuration, 0, 1);
 
       flower.growthScale = 1;
       flower.lifeOpacity = lerp(255, 0, progress);
+
+    } else {
+      // Stay hidden until the next garden cycle.
+      flower.growthScale = 0.1;
+      flower.lifeOpacity = 0;
     }
   }
 }
