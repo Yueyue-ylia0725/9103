@@ -1,6 +1,10 @@
 // User Input mechanic — Jie Zhou
-// Flower drawing follows the shared garden.js flower design.
-// Clicking creates a flower that moves downward.
+// Click to create falling flowers.
+// Move the mouse to leave gently drifting petals and leaves.
+
+// --------------------------------------------------
+// Click interaction: falling flowers
+// --------------------------------------------------
 
 let fallingFlowers = [];
 
@@ -10,7 +14,7 @@ class FallingFlower {
     this.y = y;
     this.fallSpeed = 1;
 
-    // Choose an existing garden flower specification.
+    // Reuse the shared garden specifications for visual consistency.
     const spec = random(GARDEN_BLOOMS);
     this.radius = spec[2];
 
@@ -18,7 +22,8 @@ class FallingFlower {
     const centre = spec[4];
     const petals = spec[5];
 
-    // Prepare the flower image using the shared garden style.
+    // Flower drawing follows GardenForegroundFlower in garden.js.
+    // Draw the image once, then reuse it while the flower moves.
     const side = Math.ceil(this.radius * 2 + 12);
     this.sprite = createGraphics(side, side);
 
@@ -33,7 +38,7 @@ class FallingFlower {
     const phase = random(TWO_PI);
     const rim = [];
 
-    // Create a gently scalloped flower outline.
+    // Create the same gently scalloped outline as the garden flowers.
     for (let i = 0; i < 72; i++) {
       const a = (i / 72) * TWO_PI;
 
@@ -59,7 +64,7 @@ class FallingFlower {
 
     g.endShape(CLOSE);
 
-    // Add subtle petal shapes.
+    // Subtle petal tones follow the shared flower design.
     for (let i = 0; i < petals; i++) {
       const a = (i / petals) * TWO_PI + phase;
       const shade = i % 3 === 0 ? "#674760" : "#E3D6C4";
@@ -88,7 +93,7 @@ class FallingFlower {
       g.pop();
     }
 
-    // Draw the flower centre and highlight.
+    // Draw the flower centre and its small highlight.
     g.fill(centre);
     g.ellipse(
       -r * 0.04,
@@ -106,15 +111,17 @@ class FallingFlower {
     );
   }
 
-  // Move one pixel downward each frame.
   update() {
+    // Increase the vertical position to move down one pixel per frame.
     this.y += this.fallSpeed;
   }
 
   display() {
+    // Keep image settings separate from other garden mechanics.
     push();
     imageMode(CORNER);
 
+    // Centre the flower image on its stored position.
     image(
       this.sprite,
       this.x - this.sprite.width / 2,
@@ -125,17 +132,17 @@ class FallingFlower {
   }
 
   isOffScreen() {
+    // Check the top edge so the whole flower leaves before removal.
     return this.y - this.sprite.height / 2 > height;
   }
 }
 
-// Add a new flower at the mouse position.
 function createInputFlower(x, y) {
   fallingFlowers.push(new FallingFlower(x, y));
 }
 
-// Keep only flowers that have not left the canvas.
 function updateInput() {
+  // Keep only flowers that are still on screen.
   let remainingFlowers = [];
 
   for (const flower of fallingFlowers) {
@@ -155,26 +162,32 @@ function drawInput() {
   }
 }
 
-// Store the temporary petals and leaves separately from falling flowers.
-// Each trail mark has its own position, appearance and fading opacity.
+// --------------------------------------------------
+// Mouse movement: drifting and fading petals and leaves
+// --------------------------------------------------
+
 let trailElements = [];
 let nextTrailIsLeaf = false;
 
 class TrailElement {
   constructor(x, y, isLeaf) {
-    // Remember where the mouse was when this mark was created.
-    // The mark stays at this position while the mouse moves on.
+    // Start each mark at the mouse position.
     this.x = x;
     this.y = y;
     this.isLeaf = isLeaf;
 
-    // Vary the size and angle slightly to avoid identical repeated marks.
-    this.size = random(10, 18);
+    // Larger marks are easier to see against the detailed background.
+    this.size = random(20, 28);
     this.angle = random(TWO_PI);
     this.opacity = 200;
 
-    // Store RGB values from the garden palette.
-    // Keeping colours in a limited palette connects the trail to the garden.
+    // Choose movement values once so the marks drift smoothly.
+    // Choosing new random speeds every frame would cause shaking.
+    this.driftX = random(-0.3, 0.3);
+    this.driftY = random(0.15, 0.4);
+    this.rotationSpeed = random(-0.006, 0.006);
+
+    // Keep the colours within the garden palette.
     if (this.isLeaf) {
       this.colour = random([
         [99, 146, 100],
@@ -191,23 +204,27 @@ class TrailElement {
   }
 
   update() {
-    // Lower opacity every frame so the trail gradually disappears.
-    // At 60 frames per second, each mark lasts about 0.8 seconds.
+    // Slight sideways and downward movement softens the mouse path.
+    this.x += this.driftX;
+    this.y += this.driftY;
+
+    // A slow rotation gives each mark a gentle floating movement.
+    this.angle += this.rotationSpeed;
+
+    // Fade over roughly 1.7 seconds at 60 frames per second.
     this.opacity -= 2;
   }
 
   display() {
-    // Isolate drawing settings from the other garden mechanics.
+    // Isolate transformations and drawing styles from other mechanics.
     push();
-
-    // Move the origin to this mark, then rotate its local drawing space.
     translate(this.x, this.y);
     angleMode(RADIANS);
     rotate(this.angle);
     ellipseMode(CENTER);
     noStroke();
 
-    // Keep the same colour while reducing its alpha (transparency).
+    // Keep the RGB colour fixed while its transparency changes.
     fill(
       this.colour[0],
       this.colour[1],
@@ -215,11 +232,53 @@ class TrailElement {
       this.opacity
     );
 
-    // Use a narrow ellipse for a leaf and a wider ellipse for a petal.
     if (this.isLeaf) {
-      ellipse(0, 0, this.size, this.size * 0.4);
+      // Use a narrow ellipse for the leaf body.
+      ellipse(0, 0, this.size, this.size * 0.5);
+
+      // Veins make the leaf more recognisable.
+      // They fade at the same rate as the leaf body.
+      stroke(55, 90, 60, this.opacity);
+      strokeWeight(1);
+
+      // Central vein.
+      line(
+        -this.size * 0.4, 0,
+        this.size * 0.4, 0
+      );
+
+      // Side veins.
+      line(
+        -this.size * 0.15, 0,
+        -this.size * 0.3, -this.size * 0.15
+      );
+
+      line(
+        this.size * 0.15, 0,
+        0, -this.size * 0.18
+      );
+
+      line(
+        -this.size * 0.15, 0,
+        -this.size * 0.3, this.size * 0.15
+      );
+
+      line(
+        this.size * 0.15, 0,
+        0, this.size * 0.18
+      );
     } else {
-      ellipse(0, 0, this.size * 0.65, this.size);
+      // Use a broader ellipse for the petal.
+      ellipse(0, 0, this.size * 0.7, this.size);
+
+      // A translucent highlight adds detail without a new drawing technique.
+      fill(255, 235, 220, this.opacity * 0.3);
+      ellipse(
+        -this.size * 0.1,
+        -this.size * 0.1,
+        this.size * 0.2,
+        this.size * 0.55
+      );
     }
 
     pop();
@@ -227,17 +286,19 @@ class TrailElement {
 }
 
 function createInputTrail(x, y) {
-  // Create one mark at the current mouse position.
+  // Add one mark when the mouse has moved far enough.
+  // The spacing check is handled in sketch.js.
   trailElements.push(
     new TrailElement(x, y, nextTrailIsLeaf)
   );
 
-  // Alternate petals and leaves instead of generating only one type.
+  // Alternate between petals and leaves.
   nextTrailIsLeaf = !nextTrailIsLeaf;
 }
 
 function updateInputTrail() {
-  // Keep only visible marks, so faded objects do not accumulate.
+  // Update every mark, then retain only those that are still visible.
+  // This stops invisible trail objects accumulating.
   let remainingTrail = [];
 
   for (const element of trailElements) {
@@ -252,7 +313,7 @@ function updateInputTrail() {
 }
 
 function drawInputTrail() {
-  // The garden is redrawn each frame, so active marks must also be redrawn.
+  // Redraw marks each frame because the garden is also redrawn.
   for (const element of trailElements) {
     element.display();
   }
