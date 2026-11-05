@@ -46,8 +46,9 @@ function mousePressed() {
     mouseY < height;
 
   if (insideCanvas) {
-    createInputFlower(mouseX, mouseY);
-  }
+  createInputFlower(mouseX, mouseY);
+  handleGardenAudioClick();
+}
 }
 
 function mouseMoved() {
@@ -79,4 +80,7 @@ function mouseMoved() {
     lastTrailX = -100;
     lastTrailY = -100;
   }
+}
+function keyPressed() {
+  return handleGardenAudioKey();
 }
