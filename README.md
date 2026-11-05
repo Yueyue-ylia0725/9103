@@ -51,20 +51,31 @@ We use `createGraphics()` to prepare reusable flower sprites and separate drawin
 
 ### 2.2 Audio Mechanic
 
-The audio mechanic uses `loadSound()` to load the soundtrack and `p5.Amplitude()` to measure its amplitude.
+The soundtrack was selected to support the garden's bright, reflective atmosphere. Music influences the lighting within the existing composition.
 
-The measured level is converted into glow size and transparency using `map()`. A `lerp()` operation smooths the changes so that the lighting responds gradually rather than jumping between values.
+The audio mechanic uses `p5.Amplitude` to measure the soundtrack's overall level. This value controls the size and opacity of warm halos around five selected foreground flowers. Stronger passages produce larger, brighter halos.
 
-Selected foreground flowers have warm halos made from overlapping translucent circles. Louder passages produce larger, brighter halos, while quieter passages produce subtler effects.
+Each halo follows its flower's position, growth scale and life-cycle opacity. This allows the Audio mechanic to work together with the existing Time-Based and Perlin Noise mechanics.
 
-A **Play music / Pause music** button controls playback.
+The mechanic also uses `p5.FFT` to analyse frequency energy between **250 and 2000 Hz**. This energy adds music-responsive brightness to the central golden regions. The original golden movement and flowing-light animation remain part of the Perlin Noise mechanic.
+
+`map()` and `constrain()` convert and limit the audio values. `lerp()` creates a faster response to stronger passages and a gentler fade as the sound becomes quieter.
+
+The first click inside the artwork starts the looping soundtrack and also creates a flower through the User Input mechanic. Keyboard shortcuts control playback, volume, seeking and the music-responsive lighting. The canvas is centred, with no external buttons or sliders.
 
 **Key techniques:**
-- `loadSound()` — Loads the soundtrack.
-- `p5.Amplitude()` — Measures audio intensity.
-- `map()` — Converts audio levels into visual properties.
-- `lerp()` — Smooths changes in glow intensity.
-- Play/Pause controls — Allow users to control music playback.
+
+- `loadSound()` and `loop()` — Load and repeat the soundtrack.
+- `p5.Amplitude` and `getLevel()` — Measure overall audio level for flower halos.
+- `p5.FFT`, `analyze()` and `getEnergy()` — Measure frequency energy for golden highlights.
+- `map()`, `constrain()` and `lerp()` — Map, limit and smooth visual responses.
+- Mouse and keyboard events — Activate music and control playback.
+
+**Development iterations:**
+
+1. Added music playback and amplitude-responsive flower halos.
+2. Added FFT-driven golden highlights and music-volume control.
+3. Expanded the halos to five flowers, strengthened the golden response, replaced external controls with canvas-click activation and keyboard shortcuts, and centred the canvas.
 
 ### 2.3 Time-Based Mechanic
 
@@ -88,7 +99,7 @@ The implementation uses `frameCount`, conditional stage logic, `constrain()` and
 
 This mechanic introduces a continuous rhythm of growth, blooming and fading into the garden.
 
-### Perlin Noise and Randomness
+### 2.4 Perlin Noise and Randomness
 
 The Perlin Noise and Randomness Mechanic creates smooth, natural movement and subtle visual variation within the garden.
 
@@ -188,13 +199,13 @@ Each mechanic is stored in a separate JavaScript file and integrated through the
 | File | Responsibility |
 |---|---|
 | `P5_project/index.html` | Loads libraries and project scripts. |
-| `P5_project/sketch.js` | Contains the main `preload()`, `setup()`, `draw()` and mouse event functions. |
+| `P5_project/sketch.js` | Contains the main `preload()`, `setup()`, `draw()`, mouse events and keyboard-event integration. |
 | `P5_project/reference-shapes.js` | Stores the garden's base colour and contour data. |
 | `P5_project/garden.js` | Defines shared geometry, garden marks, flower objects and drawing order. |
 | `P5_project/noise-mechanic.js` | Controls natural movement, random variation, independent golden-block motion and masked flowing light. |
 | `P5_project/time-mechanic.js` | Controls flower growth, bloom, fading and repetition. |
 | `P5_project/input-mechanic.js` | Creates mouse trails and falling flowers. |
-| `P5_project/audio mechanic.js` | Controls music playback, amplitude analysis and flower glows. |
+| `P5_project/audio mechanic.js` | Controls soundtrack playback, keyboard controls, amplitude-responsive flower halos and FFT-driven golden brightness. |
 | `P5_project/assets/` | Contains project assets, including the soundtrack. |
 | `P5_project/libraries/` | Contains the local p5.js and p5.sound libraries. |
 
@@ -210,7 +221,7 @@ Each group member is responsible for developing one creative coding mechanic.
 
 | Team Member | Mechanic | Contribution |
 |---|---|---|
-| **Liyang Ying** | Audio | Developed music playback controls, amplitude analysis, and audio-responsive flower glow size and brightness. |
+| **Liyang Ying** | Audio | Developed soundtrack playback, amplitude-responsive halos for five flowers, FFT-driven golden highlights, keyboard playback controls and canvas-only audio integration. |
 | **Yu Zhou** | Time-Based | Developed flower growth, blooming, fading, staggered start times and repeating life cycles. |
 | **Yueyue Liang** | Perlin Noise & Randomness | Developed noise-driven movement for leaves, flowers and background colour blocks, including flower-stem swaying, controlled random variation, independently animated golden elements and a masked golden flowing-light effect. |
 | **Jie Zhou** | User Input | Developed fading petal and leaf trails, click-generated flowers and their downward movement. |
@@ -270,6 +281,8 @@ Perlin noise calculates smooth movement offsets over time, while random values e
 The golden flowing-light effect combines a moving noise-based light field with a mask that restricts the effect to selected golden regions.
 
 The final interactive scene is drawn and animated using p5.js.
+
+For the Audio mechanic, ChatGPT and Codex assisted with developing and refining music playback, audio-responsive lighting, keyboard controls and integration. The code uses soundtrack amplitude to control flower halos and frequency energy to adjust golden highlights, with smoothing to create gradual visual changes.
 
 ### Human Contribution and Review
 
@@ -333,17 +346,35 @@ Reference for rotating flowers and other garden elements during animation.
 
 **p5.sound — `p5.Amplitude`**
 
-https://p5js.org/reference/p5.sound/p5.Amplitude/
+https://v1.p5js.org/reference/p5.sound/p5.Amplitude/
 
 Reference for measuring soundtrack amplitude and controlling audio-responsive visual effects.
+
+**p5.sound — `p5.FFT`**
+
+https://v1.p5js.org/reference/p5.sound/p5.FFT/
+
+Reference for analysing the soundtrack and reading frequency-band energy for the golden highlights.
+
+**p5.sound — `p5.SoundFile`**
+
+https://v1.p5js.org/reference/p5.sound/p5.SoundFile/
+
+Reference for soundtrack playback, pausing, looping and playback position.
 
 Any additional external code examples, tutorials or adapted techniques used during development should be acknowledged in the relevant source-code comments.
 
 ### Audio Credit
 
-The project uses `P5_project/assets/garden music.mp3` as the soundtrack.
+- **Track:** *Travel Piano*
+- **Creator:** leberch
+- **Source:** [Travel Piano on Pixabay](https://pixabay.com/ru/music/%D1%81%D0%BE%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F-%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B8%D0%BA%D0%B0-travel-piano-627382/)
+- **Licence:** [Pixabay Content License](https://pixabay.com/service/license-summary/)
+- **Duration:** Approximately 1 minute 56 seconds; looped during the experience.
+- **Project file:** `P5_project/assets/garden music.mp3`
+- **Original downloaded filename:** `leberch-travel-piano-627382.mp3`
 
-**To be completed before submission:** Soundtrack title, creator, original source URL, and licence or permission details.
+The soundtrack provides background music and drives the amplitude-responsive flower halos and FFT-responsive golden highlights. Music credit belongs to its creator.
 
 ---
 
@@ -369,17 +400,24 @@ Keep the scripts, assets and libraries in their existing folder structure.
 
 ### Experience the Garden
 
+**Click inside the artwork to start the music. Keep the artwork page focused when using the keyboard shortcuts.**
+
 | Action | Result |
 |---|---|
 | Leave the page running | Flowers automatically grow, bloom, fade and repeat. |
 | Observe the canopy and flowers | Leaves and flowers sway with different movement strengths. |
 | Observe the background | Selected colour blocks move gently, creating subtle depth. |
-| Observe the central golden area | Highlights and shadows create a continuous flowing-light effect. |
+| Observe the central golden area | Noise produces flowing highlights and shadows; soundtrack frequency energy adds music-responsive brightness. |
 | Move the mouse across the canvas | Petals and leaves appear, drift, rotate and gradually fade. |
-| Click inside the canvas | A flower appears at the cursor position and falls downward. |
-| Click **Play music** | The soundtrack plays, and selected flower glows respond to its amplitude. |
-| Click **Pause music** | The soundtrack pauses and the audio-responsive glow weakens while other animations continue. |
-| Refresh the page | The animation restarts with the fixed-seed garden composition. |
+| First click inside the canvas | Starts the looping soundtrack and creates a flower at the cursor position. |
+| Further clicks inside the canvas | Create falling flowers without restarting the soundtrack. |
+| Press **Space** | Pause or resume the soundtrack. Other garden animations continue. |
+| Press **Up / Down Arrow** | Increase or decrease music volume. |
+| Press **Left / Right Arrow** | Move the soundtrack backward or forward by 10 seconds. Seeking while paused keeps it paused. |
+| Press **V** | Toggle the music-responsive flower halos and additional golden brightness. The music and original Noise animation continue. |
+| Refresh the page | Restart the garden. Click inside the artwork again to start the music. |
+
+While music is playing, watch the five selected foreground flowers as they grow and fade. Their halo size and brightness respond to the soundtrack's amplitude. Press **V** to compare the music-responsive lighting with the original garden animation.
 
 ---
 
