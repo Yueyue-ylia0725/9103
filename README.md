@@ -106,7 +106,9 @@ Different elements have different movement behaviours:
 - **Upper leaves:** Sway gently with individual movement variations.
 - **Flowers:** Move more noticeably, with slight rotation and corresponding stem movement.
 - **Background colour blocks:** Drift slowly to create subtle depth.
-- **Golden sunshine colour blocks:** Move naturally with independently adjustable movement settings, contributing to the flowing appearance of the central golden decoration.
+- **Golden sunshine colour blocks:** Sway gently to create the flowing appearance of the central golden decoration.
+  
+![Different elements have different movement](P5_project/assets/Different%20elements%20have%20different%20movement.png)
 
 The `translate()` and `rotate()` functions apply movement and rotation, while `push()` and `pop()` isolate transformations so that one element's movement does not affect the entire scene.
 
