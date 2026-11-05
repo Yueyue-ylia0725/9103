@@ -15,7 +15,7 @@ The garden retains dark vertical tree trunks, layered vegetation, colourful flow
 ### Artistic Inspiration
 
 Our main inspiration is Gustav Klimt's *The Italian Garden*. We focused on the contrast between dark tree trunks and luminous garden spaces, the dense arrangement of flowers, and the repetition of decorative colours and shapes.
-![The Italian Garden](P5_project/assets/The%20Italian%20Garden.png)
+
 Rather than reproduce every detail, we translated these qualities into irregular colour blocks, curved outlines and overlapping layers. The result is an abstract interpretation that supports animation and interaction.
 
 Our colour choices follow the painting's spatial structure:
@@ -25,7 +25,12 @@ Our colour choices follow the painting's spatial structure:
 - **Forest green, grass green and sage** connect the vegetation.
 - **Pink, yellow, orange and red** flowers create foreground focal points.
 - **Golden decoration** introduces a warm vertical rhythm near the centre.
-![The Italian Garden2](P5_project/assets/The%20Italian%20Garden2.png)
+  
+
+| Original Painting | Final Interactive Garden |
+| --- | --- |
+|![The Italian Garden](P5_project/assets/The%20Italian%20Garden.png) | ![The Italian Garden2](P5_project/assets/The%20Italian%20Garden2.png.jpg)
+
 ### Interaction Concept
 
 We wanted the garden to remain active even when the viewer does not interact with it. Flowers grow and fade, leaves sway, and light moves across the golden areas.
@@ -131,7 +136,7 @@ Refreshing the page therefore restarts the animation without generating a differ
 
 This design decision allows the artwork to remain visually consistent while introducing natural movement and subtle variation.
 
-### Golden Flowing-Light Effect
+#### Golden Flowing-Light Effect
 
 An additional flowing-light effect was developed for the central golden decoration, one of the distinctive visual elements of Klimt's original painting.
 
