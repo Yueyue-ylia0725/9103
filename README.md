@@ -88,6 +88,10 @@ The implementation uses `frameCount`, conditional stage logic, `constrain()` and
 
 This mechanic introduces a continuous rhythm of growth, blooming and fading into the garden.
 
+Flowers remain fully opaque during growth and full bloom, and only become transparent during fading. Each flower grows for 600 frames, holds its full size for 300 frames, and fades for 300 frames. Start delays range from 0 to 240 frames, giving the whole garden a 1440-frame cycle—approximately 24 seconds at 60 FPS.
+
+The time mechanic sets each flower's growthScale and lifeOpacity. In garden.js, displayHead() applies these values using scale() and tint(), while retaining the movement and rotation provided by the noise mechanic.
+
 ### Perlin Noise and Randomness
 
 The Perlin Noise and Randomness Mechanic creates smooth, natural movement and subtle visual variation within the garden.
@@ -313,6 +317,10 @@ Used to mask the golden flowing-light effect within selected regions.
 https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml
 
 Used to create smooth transitions between highlights and shadows in the animated light field.
+
+**p5.js tint()**  
+https://p5js.org/reference/p5/tint/  
+Used in garden.js to apply the time-based opacity value to foreground flower sprites during fading.
 
 
 ### Audio Credit
