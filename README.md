@@ -99,6 +99,10 @@ The implementation uses `frameCount`, conditional stage logic, `constrain()` and
 
 This mechanic introduces a continuous rhythm of growth, blooming and fading into the garden.
 
+Flowers remain fully opaque during growth and full bloom, and only become transparent during fading. Each flower grows for 600 frames, holds its full size for 300 frames, and fades for 300 frames. Start delays range from 0 to 240 frames, giving the whole garden a 1440-frame cycle—approximately 24 seconds at 60 FPS.
+
+The time mechanic sets each flower's growthScale and lifeOpacity. In garden.js, displayHead() applies these values using scale() and tint(), while retaining the movement and rotation provided by the noise mechanic.
+
 ### 2.4 Perlin Noise and Randomness
 
 The Perlin Noise and Randomness Mechanic creates smooth, natural movement and subtle visual variation within the garden.
@@ -184,6 +188,11 @@ Clicking within the canvas creates a flower at the cursor position. The flower u
 
 This mechanic allows viewers to actively participate in the garden rather than simply observing its animation.
 
+Development iterations:
+- Iteration 1: Added click-generated falling flowers matching the garden style.
+- Iteration 2: Added fading petal and leaf trails with spacing control.
+- Iteration 3: Enlarged trail elements, added leaf veins and petal highlights, and introduced gentle drifting and rotation.
+
 ### 2.6 Classes, Arrays and Shared Data
 
 Classes organise the garden marks, foreground flowers, falling flowers and trail elements.
@@ -224,7 +233,7 @@ Each group member is responsible for developing one creative coding mechanic.
 | **Liyang Ying** | Audio | Developed soundtrack playback, amplitude-responsive halos for five flowers, FFT-driven golden highlights, keyboard playback controls and canvas-only audio integration. |
 | **Yu Zhou** | Time-Based | Developed flower growth, blooming, fading, staggered start times and repeating life cycles. |
 | **Yueyue Liang** | Perlin Noise & Randomness | Developed noise-driven movement for leaves, flowers and background colour blocks, including flower-stem swaying, controlled random variation, independently animated golden elements and a masked golden flowing-light effect. |
-| **Jie Zhou** | User Input | Developed fading petal and leaf trails, click-generated flowers and their downward movement. |
+| **Jie Zhou** | User Input | Developed click-generated falling flowers and fading petal and leaf trails. Added spacing control, gentle drifting and rotation, and refined the trail size, leaf veins and petal highlights. |
 
 ### Mechanic Integration
 
@@ -247,50 +256,45 @@ We used **OpenAI ChatGPT, Codex and OpenAI image generation tools** during proje
 
 ### ChatGPT and Codex
 
-ChatGPT and Codex assisted with:
+ChatGPT and Codex
 
-- Organising the project concept and code structure.
-- Explaining p5.js functions and animation techniques.
-- Generating and refining parts of the drawing and animation code.
-- Debugging movement, masking and layer-order issues.
-- Developing and refining the Perlin Noise movement system.
-- Improving foreground flower and stem movement.
-- Developing the golden flowing-light effect.
-- Supporting the integration of different mechanics.
-- Organising and editing this README.
+ChatGPT was mainly used to explain p5.js concepts, discuss implementation approaches, organise project documentation, and refine the README.
+
+OpenAI Codex assisted with generating, modifying, and debugging parts of the code, particularly:
+
+- Processing garden contours and refining flower rendering.
+
+- Improving flower sway, stem bending, and layer organisation.
+
+- Implementing the golden flowing-light effect using noise, pixel processing, and masking.
+
+- Resolving animation and integration issues.
 
 ### AI Image Generation
 
-OpenAI image generation tools supported visual exploration during concept development.
+OpenAI image generation tools were used during visual exploration to create garden mock-ups, experiment with colours and abstract styles, and develop visual references and interaction illustrations.
 
-AI was used to:
-
-- Generate visual mock-ups of the garden's intended appearance.
-- Explore colour relationships and abstract visual styles.
-- Create interaction illustrations and storyboard references.
-- Support the development of visual references for the coded garden.
-
-AI-generated garden imagery also informed the colour and contour development of the coded scene.
+AI-generated imagery also supported the colour selection and contour development of the coded garden.
 
 ### How AI-Assisted Code Works
 
-The AI-assisted animation code stores stable positions and individual movement parameters for garden elements.
+The garden uses predefined shapes and stable anchor positions rather than generating the entire composition through Perlin Noise.
 
-Perlin noise calculates smooth movement offsets over time, while random values establish differences between elements during initialisation.
+Random values introduce individual variations, while Perlin Noise produces smooth movement offsets for different garden elements.
 
-The golden flowing-light effect combines a moving noise-based light field with a mask that restricts the effect to selected golden regions.
+The golden flowing-light effect uses an animated noise-based light field and masking to keep the highlights within selected golden regions.
 
-The final interactive scene is drawn and animated using p5.js.
+The final scene is rendered and animated using p5.js.
 
 For the Audio mechanic, ChatGPT and Codex assisted with developing and refining music playback, audio-responsive lighting, keyboard controls and integration. The code uses soundtrack amplitude to control flower halos and frequency energy to adjust golden highlights, with smoothing to create gradual visual changes.
 
 ### Human Contribution and Review
 
-All AI-assisted code was reviewed, tested and modified by group members to meet the project's visual and technical requirements.
+Group members reviewed, tested, and refined the AI-assisted code to achieve the intended visual and interactive outcomes.
 
-The group made the final design decisions, refined the visual outcomes, resolved integration issues and tested the completed implementation.
+The team made the final design decisions, adjusted movement parameters, refined colours and layering, and integrated the different mechanics into a working prototype.
 
-AI-assisted sections are identified in the relevant source-code comments, with explanations of their purpose and functionality.
+AI-assisted implementations and relevant external techniques are acknowledged in the source-code comments.
 
 ---
 
@@ -308,61 +312,46 @@ https://www.xiaohongshu.com/explore/67ff683f000000001201e48b
 
 ### Technical References
 
-**p5.js Official Reference**
 
-https://p5js.org/reference/
+**Ramer–Douglas–Peucker Algorithm**
 
-Used as a reference for p5.js drawing functions, animation, transformations and interaction.
+https://doi.org/10.3138/FM57-6770-U75U-7727
 
-**p5.js — `noise()`**
+Used to simplify the garden's contour data before rendering.
 
-https://p5js.org/reference/p5/noise/
+**Canvas 2D Compositing**
 
-Reference for generating smooth, continuous values used in natural movement and the golden flowing-light effect.
+https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
 
-**p5.js — `random()`**
+Used to mask the golden flowing-light effect within selected regions.
 
-https://p5js.org/reference/p5/random/
+**Smoothstep Interpolation**
 
-Reference for random values used to establish individual visual variation.
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml
 
-**p5.js — `createGraphics()`**
+Used to create smooth transitions between highlights and shadows in the animated light field.
 
-https://p5js.org/reference/p5/createGraphics/
-
-Reference for offscreen graphics buffers used to prepare flower sprites and organise drawing layers.
-
-**p5.js — `translate()`**
-
-https://p5js.org/reference/p5/translate/
-
-Reference for applying positional transformations to animated elements.
-
-**p5.js — `rotate()`**
-
-https://p5js.org/reference/p5/rotate/
-
-Reference for rotating flowers and other garden elements during animation.
+**p5.js tint()**  
+https://p5js.org/reference/p5/tint/  
+Used in garden.js to apply the time-based opacity value to foreground flower sprites during fading.
 
 **p5.sound — `p5.Amplitude`**
 
 https://v1.p5js.org/reference/p5.sound/p5.Amplitude/
 
-Reference for measuring soundtrack amplitude and controlling audio-responsive visual effects.
+Reference for measuring soundtrack amplitude and controlling audio-responsive flower halos.
 
 **p5.sound — `p5.FFT`**
 
 https://v1.p5js.org/reference/p5.sound/p5.FFT/
 
-Reference for analysing the soundtrack and reading frequency-band energy for the golden highlights.
+Reference for analysing frequency-band energy for the golden highlights.
 
 **p5.sound — `p5.SoundFile`**
 
 https://v1.p5js.org/reference/p5.sound/p5.SoundFile/
 
 Reference for soundtrack playback, pausing, looping and playback position.
-
-Any additional external code examples, tutorials or adapted techniques used during development should be acknowledged in the relevant source-code comments.
 
 ### Audio Credit
 

@@ -1,10 +1,11 @@
 // User Input mechanic — Jie Zhou
 // Click to create falling flowers.
 // Move the mouse to leave gently drifting petals and leaves.
+// Codex helped me understand the code, check its correctness,
+// and also assisted me in making modifications.
+// Jie Zhou tested the versions and selected the visual refinements.
 
-// --------------------------------------------------
 // Click interaction: falling flowers
-// --------------------------------------------------
 
 let fallingFlowers = [];
 
@@ -22,7 +23,7 @@ class FallingFlower {
     const centre = spec[4];
     const petals = spec[5];
 
-    // Flower drawing follows GardenForegroundFlower in garden.js.
+    // Flower drawing is adapted from GardenForegroundFlower in garden.js.
     // Draw the image once, then reuse it while the flower moves.
     const side = Math.ceil(this.radius * 2 + 12);
     this.sprite = createGraphics(side, side);
@@ -162,9 +163,7 @@ function drawInput() {
   }
 }
 
-// --------------------------------------------------
 // Mouse movement: drifting and fading petals and leaves
-// --------------------------------------------------
 
 let trailElements = [];
 let nextTrailIsLeaf = false;
@@ -211,7 +210,9 @@ class TrailElement {
     // A slow rotation gives each mark a gentle floating movement.
     this.angle += this.rotationSpeed;
 
-    // Fade over roughly 1.7 seconds at 60 frames per second.
+    // Reduce opacity by 2 each frame, so the mark lasts about 100 frames.
+    // This is roughly 1.7 seconds at 60 fps.
+    // Lower frame rates make it last longer.
     this.opacity -= 2;
   }
 
@@ -271,7 +272,8 @@ class TrailElement {
       // Use a broader ellipse for the petal.
       ellipse(0, 0, this.size * 0.7, this.size);
 
-      // A translucent highlight adds detail without a new drawing technique.
+      // A small translucent ellipse adds a soft highlight to the petal.
+      // Its opacity follows the petal so both fade together.
       fill(255, 235, 220, this.opacity * 0.3);
       ellipse(
         -this.size * 0.1,
