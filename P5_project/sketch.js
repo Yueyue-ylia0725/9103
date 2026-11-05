@@ -4,31 +4,35 @@ let noiseGarden;
 let lastTrailX = -100;
 let lastTrailY = -100;
 
+function preload() {
+  preloadGardenAudio();
+}
+
 function setup() {
   createCanvas(780, 1000);
   noiseGarden = new NoiseGarden();
 
   // Initialise the existing time-based flower growth.
   setupTimeMechanic();
+  setupGardenAudio();
 }
 
 function draw() {
-  // Keep the time calculation used by the existing noise mechanic.
+  // Read the music before updating the garden.
+  updateGardenAudio();
+
   const dt = Math.min(deltaTime / 1000, 0.1);
 
   if (typeof noiseGarden.update === "function") {
     noiseGarden.update(dt);
   }
 
-  // Update growth before drawing the garden.
   updateTimeMechanic();
   noiseGarden.display();
 
-  // Draw falling flowers above the garden.
   updateInput();
   drawInput();
 
-  // Update fading marks even when the mouse stops moving.
   updateInputTrail();
   drawInputTrail();
 }
@@ -42,8 +46,9 @@ function mousePressed() {
     mouseY < height;
 
   if (insideCanvas) {
-    createInputFlower(mouseX, mouseY);
-  }
+  createInputFlower(mouseX, mouseY);
+  handleGardenAudioClick();
+}
 }
 
 function mouseMoved() {
@@ -75,4 +80,7 @@ function mouseMoved() {
     lastTrailX = -100;
     lastTrailY = -100;
   }
+}
+function keyPressed() {
+  return handleGardenAudioKey();
 }

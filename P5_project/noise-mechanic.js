@@ -137,6 +137,7 @@ class GoldFlowEffect {
     const c = GOLD_FLOW;
     if (seconds-this.lastTime < 1/c.fps) return;
     this.lastTime = seconds;
+    const audioGoldBoost = getGardenGoldBoost();
     const f = this.field;
     f.loadPixels();
     // Smoothstep gives the light softer edges (Codex-assisted).
@@ -157,7 +158,17 @@ class GoldFlowEffect {
       f.pixels[i]=highlight?255:151;
       f.pixels[i+1]=highlight?231:103;
       f.pixels[i+2]=highlight?151:33;
-      f.pixels[i+3]=Math.round(highlight?bright*c.highlightAlpha:dark*c.shadowAlpha);
+      const musicLight = constrain(
+      map(bright, 0, 0.2, 0, 1),
+      0,
+      1
+      );
+
+      f.pixels[i + 3] = Math.round(
+      highlight
+      ? bright * c.highlightAlpha + musicLight * audioGoldBoost
+      : dark * c.shadowAlpha
+    );
     }
     f.updatePixels();
     const g=this.layer;

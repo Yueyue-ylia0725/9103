@@ -1,4 +1,378 @@
-# 9103
-My first repository for IDEA9103
+# The Italian Garden — A Living Garden
 
-This is my first local change to the repo!
+**IDEA9103 Creative Coding Major Project | Group E**
+
+**Chosen option:** Reinterpret an existing artwork.
+
+*The Italian Garden* is an interactive p5.js artwork inspired by Gustav Klimt's *The Italian Garden* (1913). Our project transforms the painting into a living digital landscape through four mechanics: audio, time-based animation, Perlin noise and randomness, and user input.
+
+The garden retains dark vertical tree trunks, layered vegetation, colourful flowers and central golden decoration. Movement, changing light and temporary floral traces bring these elements to life while preserving the overall composition.
+
+---
+
+## 1. Inspiration
+
+### Artistic Inspiration
+
+Our main inspiration is Gustav Klimt's *The Italian Garden*. We focused on the contrast between dark tree trunks and luminous garden spaces, the dense arrangement of flowers, and the repetition of decorative colours and shapes.
+
+Rather than reproduce every detail, we translated these qualities into irregular colour blocks, curved outlines and overlapping layers. The result is an abstract interpretation that supports animation and interaction.
+
+Our colour choices follow the painting's spatial structure:
+
+- **Dark navy, blue and purple** establish the tree trunks and shadows.
+- **Pale blue, cream and muted cyan** create depth in the background.
+- **Forest green, grass green and sage** connect the vegetation.
+- **Pink, yellow, orange and red** flowers create foreground focal points.
+- **Golden decoration** introduces a warm vertical rhythm near the centre.
+  
+
+| Original Painting | Final Interactive Garden |
+| --- | --- |
+|![The Italian Garden](P5_project/assets/The%20Italian%20Garden.png) | ![The Italian Garden2](P5_project/assets/The%20Italian%20Garden2.png.jpg)
+
+### Interaction Concept
+
+We wanted the garden to remain active even when the viewer does not interact with it. Flowers grow and fade, leaves sway, and light moves across the golden areas.
+
+The viewer can also participate by playing music, moving the mouse and clicking within the garden. All four mechanics share the same visual language so that their effects feel like parts of one environment.
+
+---
+
+## 2. Techniques
+
+### 2.1 Layered Shapes and Colour Blocks
+
+The garden is constructed from stored contour data, irregular colour blocks and independently drawn flowers.
+
+Functions such as `beginShape()`, `quadraticVertex()`, `curveVertex()` and Bézier curves create rounded, painterly outlines. Drawing order controls the relationships between the background, tree trunks, vegetation, stems and flower heads.
+
+We use `createGraphics()` to prepare reusable flower sprites and separate drawing layers. This allows static geometry and animated effects to be managed independently.
+
+### 2.2 Audio Mechanic
+
+The audio mechanic uses `loadSound()` to load the soundtrack and `p5.Amplitude()` to measure its amplitude.
+
+The measured level is converted into glow size and transparency using `map()`. A `lerp()` operation smooths the changes so that the lighting responds gradually rather than jumping between values.
+
+Selected foreground flowers have warm halos made from overlapping translucent circles. Louder passages produce larger, brighter halos, while quieter passages produce subtler effects.
+
+A **Play music / Pause music** button controls playback.
+
+**Key techniques:**
+- `loadSound()` — Loads the soundtrack.
+- `p5.Amplitude()` — Measures audio intensity.
+- `map()` — Converts audio levels into visual properties.
+- `lerp()` — Smooths changes in glow intensity.
+- Play/Pause controls — Allow users to control music playback.
+
+### 2.3 Time-Based Mechanic
+
+The time-based mechanic gives the foreground flowers a repeating life cycle:
+
+1. **Growth:** Flowers gradually increase in size.
+2. **Bloom:** Flowers remain at their full size.
+3. **Fade:** Flowers gradually become transparent.
+4. **Repeat:** The sequence restarts.
+
+Each flower has a different `bloomDelay`, allowing flowers to appear at different times.
+
+The implementation uses `frameCount`, conditional stage logic, `constrain()` and `lerp()` to calculate growth and opacity. Because the sequence uses frame counts, its duration depends on the actual frame rate.
+
+**Key techniques:**
+- `frameCount` — Tracks animation progression.
+- Conditional statements — Control different growth stages.
+- `constrain()` — Limits growth and opacity values.
+- `lerp()` — Creates gradual visual transitions.
+- Arrays — Store and manage multiple flower objects.
+
+This mechanic introduces a continuous rhythm of growth, blooming and fading into the garden.
+
+### Perlin Noise and Randomness
+
+The Perlin Noise and Randomness Mechanic creates smooth, natural movement and subtle visual variation within the garden.
+
+#### Perlin Noise — Natural Movement
+
+Perlin noise is used to animate leaves, flowers, selected background colour blocks, and the central golden decoration.
+
+Unlike completely random movement, `noise()` produces smooth and continuous changes over time, creating a natural wind-like effect.
+
+Each element maintains its original position using `baseX` and `baseY`, while noise values calculate temporary movement offsets. This prevents elements from drifting permanently away from the original composition.
+
+Different elements have different movement behaviours:
+
+- **Tree trunks:** Remain stable to preserve the original composition.
+- **Upper leaves:** Sway gently with individual movement variations.
+- **Flowers:** Move more noticeably, with slight rotation and corresponding stem movement.
+- **Background colour blocks:** Drift slowly to create subtle depth.
+- **Golden sunshine colour blocks:** Sway gently to create the flowing appearance of the central golden decoration.
+  
+![Different elements have different movement](P5_project/assets/Different%20elements%20have%20different%20movement.png)
+
+The `translate()` and `rotate()` functions apply movement and rotation, while `push()` and `pop()` isolate transformations so that one element's movement does not affect the entire scene.
+
+To further enhance the flowing appearance of the golden decoration, an additional light effect was developed using Perlin noise.
+
+A moving noise field generates smoothly changing highlights and shadows across the golden surface. By shifting the noise sampling coordinates downward over time, the effect creates the appearance of light flowing along the golden elements.
+
+A graphics mask restricts the flowing light to the golden regions while preserving their overlapping relationships with surrounding vegetation.
+
+The natural movement of the golden colour blocks and the flowing-light effect are controlled independently, allowing both movement and lighting changes without disrupting the original composition.
+
+**Additional techniques used for the golden flowing-light effect:**
+
+- **Dynamic noise sampling:** Creates continuous changes in highlights and shadows.
+- **Time-based offsets:** Produce the appearance of downward-flowing light.
+- **Graphics masking:** Restricts the lighting effect to the golden colour blocks.
+- **Layered rendering:** Maintains the correct overlapping relationships between the golden elements and surrounding vegetation.
+
+#### Randomness — Visual Variation
+
+Randomness is used during initialisation to create subtle differences between individual elements without changing the overall garden composition.
+
+The `random()` function contributes to variations in:
+
+- Movement strength and noise sampling offsets.
+- Flower stem lengths and initial rotations.
+- Selected shapes and decorative details.
+- The selection of background elements that participate in animation.
+
+These variations make the garden feel more organic and less repetitive while maintaining a consistent visual style.
+
+#### Development from the Original Concept
+
+Our initial concept included regenerating different garden compositions using random seeds.
+
+However, this feature was removed during development to maintain the recognisable structure of Klimt's original painting.
+
+Instead, a fixed seed is used to preserve the overall composition and repeatable visual details, while randomness continues to create variation between individual elements.
+
+Refreshing the page therefore restarts the animation without generating a differently arranged garden.
+
+This design decision allows the artwork to remain visually consistent while introducing natural movement and subtle variation.
+
+
+### 2.5 User Input Mechanic
+
+The User Input Mechanic allows viewers to interact directly with the garden through mouse movement and clicking.
+
+Mouse movement creates a temporary trail of alternating petals and leaves. Each trail element receives its own size, angle, drift and rotation values.
+
+The marks slowly move, rotate and fade. A distance check spaces new elements along the cursor path, preventing excessive overlap. Fully faded elements are removed from the array.
+
+Clicking within the canvas creates a flower at the cursor position. The flower uses the shared garden palette and flower specifications, falls downward, and is removed after leaving the canvas.
+
+**Key techniques:**
+- `mouseX` / `mouseY` — Track cursor position.
+- Mouse event functions — Detect movement and clicks.
+- Arrays — Store temporary trail elements and falling flowers.
+- Random values — Introduce variation in floral elements.
+- Opacity transitions — Create fading trails.
+- Position updates — Animate falling flowers.
+
+This mechanic allows viewers to actively participate in the garden rather than simply observing its animation.
+
+Development iterations:
+- Iteration 1: Added click-generated falling flowers matching the garden style.
+- Iteration 2: Added fading petal and leaf trails with spacing control.
+- Iteration 3: Enlarged trail elements, added leaf veins and petal highlights, and introduced gentle drifting and rotation.
+
+### 2.6 Classes, Arrays and Shared Data
+
+Classes organise the garden marks, foreground flowers, falling flowers and trail elements.
+
+Arrays store their instances so that each object can be updated and drawn consistently.
+
+Shared flower specifications keep the permanent garden flowers and click-generated flowers visually related.
+
+### 2.7 Code Structure
+
+Each mechanic is stored in a separate JavaScript file and integrated through the main sketch.
+
+| File | Responsibility |
+|---|---|
+| `P5_project/index.html` | Loads libraries and project scripts. |
+| `P5_project/sketch.js` | Contains the main `preload()`, `setup()`, `draw()` and mouse event functions. |
+| `P5_project/reference-shapes.js` | Stores the garden's base colour and contour data. |
+| `P5_project/garden.js` | Defines shared geometry, garden marks, flower objects and drawing order. |
+| `P5_project/noise-mechanic.js` | Controls natural movement, random variation, independent golden-block motion and masked flowing light. |
+| `P5_project/time-mechanic.js` | Controls flower growth, bloom, fading and repetition. |
+| `P5_project/input-mechanic.js` | Creates mouse trails and falling flowers. |
+| `P5_project/audio mechanic.js` | Controls music playback, amplitude analysis and flower glows. |
+| `P5_project/assets/` | Contains project assets, including the soundtrack. |
+| `P5_project/libraries/` | Contains the local p5.js and p5.sound libraries. |
+
+The main sketch connects the four mechanics within a shared visual environment.
+
+Separating the mechanics into individual files makes the code easier to understand, maintain and integrate during group development.
+
+---
+
+## 3. Mechanic Ownership
+
+Each group member is responsible for developing one creative coding mechanic.
+
+| Team Member | Mechanic | Contribution |
+|---|---|---|
+| **Liyang Ying** | Audio | Developed music playback controls, amplitude analysis, and audio-responsive flower glow size and brightness. |
+| **Yu Zhou** | Time-Based | Developed flower growth, blooming, fading, staggered start times and repeating life cycles. |
+| **Yueyue Liang** | Perlin Noise & Randomness | Developed noise-driven movement for leaves, flowers and background colour blocks, including flower-stem swaying, controlled random variation, independently animated golden elements and a masked golden flowing-light effect. |
+| **Jie Zhou** | User Input | Developed click-generated falling flowers and fading petal and leaf trails. Added spacing control, gentle drifting and rotation, and refined the trail size, leaf veins and petal highlights. |
+
+### Mechanic Integration
+
+All four mechanics operate within the shared garden composition.
+
+- **Audio** changes visual brightness and glow intensity.
+- **Time-Based Animation** controls flower growth and life cycles.
+- **Perlin Noise & Randomness** creates organic movement, individual variation and flowing golden highlights.
+- **User Input** allows viewers to create temporary floral elements through mouse interaction.
+
+Although each mechanic controls different properties, they share consistent colours, shapes and drawing conventions.
+
+Together, they create a cohesive interactive interpretation of the original painting.
+
+---
+
+## 4. AI Acknowledgement
+
+We used **OpenAI ChatGPT, Codex and OpenAI image generation tools** during project development.
+
+### ChatGPT and Codex
+
+ChatGPT and Codex
+
+ChatGPT was mainly used to explain p5.js concepts, discuss implementation approaches, organise project documentation, and refine the README.
+
+OpenAI Codex assisted with generating, modifying, and debugging parts of the code, particularly:
+
+- Processing garden contours and refining flower rendering.
+
+- Improving flower sway, stem bending, and layer organisation.
+
+- Implementing the golden flowing-light effect using noise, pixel processing, and masking.
+
+- Resolving animation and integration issues.
+
+### AI Image Generation
+
+OpenAI image generation tools were used during visual exploration to create garden mock-ups, experiment with colours and abstract styles, and develop visual references and interaction illustrations.
+
+AI-generated imagery also supported the colour selection and contour development of the coded garden.
+
+### How AI-Assisted Code Works
+
+The garden uses predefined shapes and stable anchor positions rather than generating the entire composition through Perlin Noise.
+
+Random values introduce individual variations, while Perlin Noise produces smooth movement offsets for different garden elements.
+
+The golden flowing-light effect uses an animated noise-based light field and masking to keep the highlights within selected golden regions.
+
+The final scene is rendered and animated using p5.js.
+
+### Human Contribution and Review
+
+Group members reviewed, tested, and refined the AI-assisted code to achieve the intended visual and interactive outcomes.
+
+The team made the final design decisions, adjusted movement parameters, refined colours and layering, and integrated the different mechanics into a working prototype.
+
+AI-assisted implementations and relevant external techniques are acknowledged in the source-code comments.
+
+---
+
+## 5. External References
+
+### Artwork Reference
+
+**Klimt, Gustav. *The Italian Garden*. 1913.**
+
+The original painting informed our composition, colour relationships, layered vegetation, decorative shapes and central golden elements.
+
+The artwork image referenced during concept development was accessed through:
+
+https://www.xiaohongshu.com/explore/67ff683f000000001201e48b
+
+### Technical References
+
+
+**Ramer–Douglas–Peucker Algorithm**
+
+https://doi.org/10.3138/FM57-6770-U75U-7727
+
+Used to simplify the garden's contour data before rendering.
+
+**Canvas 2D Compositing**
+
+https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+
+Used to mask the golden flowing-light effect within selected regions.
+
+**Smoothstep Interpolation**
+
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml
+
+Used to create smooth transitions between highlights and shadows in the animated light field.
+
+
+### Audio Credit
+
+The project uses `P5_project/assets/garden music.mp3` as the soundtrack.
+
+**To be completed before submission:** Soundtrack title, creator, original source URL, and licence or permission details.
+
+---
+
+## 6. Interaction Instructions
+
+### Run Locally
+
+1. Download or clone the complete GitHub repository.
+2. Open the `P5_project` folder in Visual Studio Code.
+3. Open `index.html` using the Live Server extension.
+
+Alternatively, run the following command from the `P5_project` directory:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open:
+
+http://localhost:8000/
+
+Keep the scripts, assets and libraries in their existing folder structure.
+
+### Experience the Garden
+
+| Action | Result |
+|---|---|
+| Leave the page running | Flowers automatically grow, bloom, fade and repeat. |
+| Observe the canopy and flowers | Leaves and flowers sway with different movement strengths. |
+| Observe the background | Selected colour blocks move gently, creating subtle depth. |
+| Observe the central golden area | Highlights and shadows create a continuous flowing-light effect. |
+| Move the mouse across the canvas | Petals and leaves appear, drift, rotate and gradually fade. |
+| Click inside the canvas | A flower appears at the cursor position and falls downward. |
+| Click **Play music** | The soundtrack plays, and selected flower glows respond to its amplitude. |
+| Click **Pause music** | The soundtrack pauses and the audio-responsive glow weakens while other animations continue. |
+| Refresh the page | The animation restarts with the fixed-seed garden composition. |
+
+---
+
+## 7. Project Outcome
+
+*The Italian Garden* transforms a static painting into an animated and interactive digital landscape.
+
+Through the combination of audio responsiveness, time-based flower growth, Perlin Noise movement, controlled randomness and user interaction, the project explores how creative coding can reinterpret traditional visual art.
+
+The final composition maintains the original painting's recognisable structure while introducing natural motion, flowing light, temporal changes and opportunities for audience participation.
+
+The project demonstrates how four independently developed p5.js mechanics can be integrated into one cohesive visual experience.
+
+---
+
+## GitHub Repository
+
+**Group E — The Italian Garden**
+
+https://github.com/Yueyue-ylia0725/9103
