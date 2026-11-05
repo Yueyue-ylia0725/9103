@@ -173,6 +173,11 @@ Clicking within the canvas creates a flower at the cursor position. The flower u
 
 This mechanic allows viewers to actively participate in the garden rather than simply observing its animation.
 
+Development iterations:
+- Iteration 1: Added click-generated falling flowers matching the garden style.
+- Iteration 2: Added fading petal and leaf trails with spacing control.
+- Iteration 3: Enlarged trail elements, added leaf veins and petal highlights, and introduced gentle drifting and rotation.
+
 ### 2.6 Classes, Arrays and Shared Data
 
 Classes organise the garden marks, foreground flowers, falling flowers and trail elements.
@@ -213,7 +218,7 @@ Each group member is responsible for developing one creative coding mechanic.
 | **Liyang Ying** | Audio | Developed music playback controls, amplitude analysis, and audio-responsive flower glow size and brightness. |
 | **Yu Zhou** | Time-Based | Developed flower growth, blooming, fading, staggered start times and repeating life cycles. |
 | **Yueyue Liang** | Perlin Noise & Randomness | Developed noise-driven movement for leaves, flowers and background colour blocks, including flower-stem swaying, controlled random variation, independently animated golden elements and a masked golden flowing-light effect. |
-| **Jie Zhou** | User Input | Developed fading petal and leaf trails, click-generated flowers and their downward movement. |
+| **Jie Zhou** | User Input | Developed click-generated falling flowers and fading petal and leaf trails. Added spacing control, gentle drifting and rotation, and refined the trail size, leaf veins and petal highlights. |
 
 ### Mechanic Integration
 
