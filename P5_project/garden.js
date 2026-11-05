@@ -332,7 +332,13 @@ class NoiseGarden {
     // Repaint complete original blocks; gaps and staggered edges stay organic.
     for(const mark of this.foregroundOccluders)mark.display(window,this.moving.includes(mark));
     for (const flower of this.flowerDrawOrder) {
-  if (flower.baseX === 287 || flower.baseX === 612) {
+    if (
+    flower.baseX === 72 ||
+    flower.baseX === 287 ||
+    flower.baseX === 437 ||
+    flower.baseX === 551 ||
+    flower.baseX === 612
+     ) {
     drawGardenFlowerGlow(
     flower.x,
     flower.y,

@@ -144,11 +144,17 @@ class GoldFlowEffect {
       f.pixels[i]=highlight?255:151;
       f.pixels[i+1]=highlight?231:103;
       f.pixels[i+2]=highlight?151:33;
+      const musicLight = constrain(
+      map(bright, 0, 0.2, 0, 1),
+      0,
+      1
+      );
+
       f.pixels[i + 3] = Math.round(
       highlight
-      ? bright * (c.highlightAlpha + audioGoldBoost)
+      ? bright * c.highlightAlpha + musicLight * audioGoldBoost
       : dark * c.shadowAlpha
-      );
+    );
     }
     f.updatePixels();
     const g=this.layer;
