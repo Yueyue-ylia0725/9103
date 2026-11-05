@@ -125,6 +125,7 @@ class GoldFlowEffect {
     const c = GOLD_FLOW;
     if (seconds-this.lastTime < 1/c.fps) return;
     this.lastTime = seconds;
+    const audioGoldBoost = getGardenGoldBoost();
     const f = this.field;
     f.loadPixels();
     const smooth = (a,b,x) => {
@@ -143,7 +144,11 @@ class GoldFlowEffect {
       f.pixels[i]=highlight?255:151;
       f.pixels[i+1]=highlight?231:103;
       f.pixels[i+2]=highlight?151:33;
-      f.pixels[i+3]=Math.round(highlight?bright*c.highlightAlpha:dark*c.shadowAlpha);
+      f.pixels[i + 3] = Math.round(
+      highlight
+      ? bright * (c.highlightAlpha + audioGoldBoost)
+      : dark * c.shadowAlpha
+      );
     }
     f.updatePixels();
     const g=this.layer;

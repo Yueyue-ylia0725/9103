@@ -334,10 +334,11 @@ class NoiseGarden {
     for (const flower of this.flowerDrawOrder) {
   if (flower.baseX === 287 || flower.baseX === 612) {
     drawGardenFlowerGlow(
-      flower.x,
-      flower.y,
-      flower.radius * 2
-    );
+    flower.x,
+    flower.y,
+    flower.radius * 2 * flower.growthScale,
+    flower.lifeOpacity
+  );
   }
 
   flower.displayHead(window);
