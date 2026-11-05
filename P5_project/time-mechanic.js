@@ -1,5 +1,12 @@
-// Time-based flower life cycle.
-// Timing depends on the actual frame rate.
+// Time-based mechanic — Yu Zhou
+// Flowers grow fully opaque, remain in bloom, then fade out.
+// Staggered start times create a repeating garden life cycle.
+// ChatGPT/Codex helps modify the code
+// Check its correctness and explain the problem.
+// Yu Zhou tested the versions and selected the timing
+// and fully opaque growth behaviour.
+
+// Time-based animation: flower life cycle
 
 let growthStartFrame;
 
