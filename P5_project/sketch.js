@@ -18,23 +18,21 @@ function setup() {
 }
 
 function draw() {
-  // Keep the time calculation used by the existing noise mechanic.
+  // Read the music before updating the garden.
+  updateGardenAudio();
+
   const dt = Math.min(deltaTime / 1000, 0.1);
 
   if (typeof noiseGarden.update === "function") {
     noiseGarden.update(dt);
   }
 
-  // Update growth before drawing the garden.
   updateTimeMechanic();
-  updateGardenAudio();
   noiseGarden.display();
 
-  // Draw falling flowers above the garden.
   updateInput();
   drawInput();
 
-  // Update fading marks even when the mouse stops moving.
   updateInputTrail();
   drawInputTrail();
 }
