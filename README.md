@@ -41,7 +41,7 @@ The viewer can also participate by playing music, moving the mouse and clicking 
 
 ## 2. Techniques
 
-### Layered Shapes and Colour Blocks
+### 2.1 Layered Shapes and Colour Blocks
 
 The garden is constructed from stored contour data, irregular colour blocks and independently drawn flowers.
 
@@ -49,7 +49,7 @@ Functions such as `beginShape()`, `quadraticVertex()`, `curveVertex()` and Bézi
 
 We use `createGraphics()` to prepare reusable flower sprites and separate drawing layers. This allows static geometry and animated effects to be managed independently.
 
-### Audio Mechanic
+### 2.2 Audio Mechanic
 
 The audio mechanic uses `loadSound()` to load the soundtrack and `p5.Amplitude()` to measure its amplitude.
 
@@ -66,7 +66,7 @@ A **Play music / Pause music** button controls playback.
 - `lerp()` — Smooths changes in glow intensity.
 - Play/Pause controls — Allow users to control music playback.
 
-### Time-Based Mechanic
+### 2.3 Time-Based Mechanic
 
 The time-based mechanic gives the foreground flowers a repeating life cycle:
 
@@ -94,7 +94,7 @@ The Perlin Noise and Randomness Mechanic creates smooth, natural movement and su
 
 #### Perlin Noise — Natural Movement
 
-Perlin noise is used to animate leaves, flowers and selected background colour blocks.
+Perlin noise is used to animate leaves, flowers, selected background colour blocks, and the central golden decoration.
 
 Unlike completely random movement, `noise()` produces smooth and continuous changes over time, creating a natural wind-like effect.
 
@@ -106,9 +106,24 @@ Different elements have different movement behaviours:
 - **Upper leaves:** Sway gently with individual movement variations.
 - **Flowers:** Move more noticeably, with slight rotation and corresponding stem movement.
 - **Background colour blocks:** Drift slowly to create subtle depth.
-- **Golden colour blocks:** Have independently adjustable movement settings.
+- **Golden sunshine colour blocks:** Move naturally with independently adjustable movement settings, contributing to the flowing appearance of the central golden decoration.
 
 The `translate()` and `rotate()` functions apply movement and rotation, while `push()` and `pop()` isolate transformations so that one element's movement does not affect the entire scene.
+
+To further enhance the flowing appearance of the golden decoration, an additional light effect was developed using Perlin noise.
+
+A moving noise field generates smoothly changing highlights and shadows across the golden surface. By shifting the noise sampling coordinates downward over time, the effect creates the appearance of light flowing along the golden elements.
+
+A graphics mask restricts the flowing light to the golden regions while preserving their overlapping relationships with surrounding vegetation.
+
+The natural movement of the golden colour blocks and the flowing-light effect are controlled independently, allowing both movement and lighting changes without disrupting the original composition.
+
+**Additional techniques used for the golden flowing-light effect:**
+
+- **Dynamic noise sampling:** Creates continuous changes in highlights and shadows.
+- **Time-based offsets:** Produce the appearance of downward-flowing light.
+- **Graphics masking:** Restricts the lighting effect to the golden colour blocks.
+- **Layered rendering:** Maintains the correct overlapping relationships between the golden elements and surrounding vegetation.
 
 #### Randomness — Visual Variation
 
@@ -119,7 +134,6 @@ The `random()` function contributes to variations in:
 - Movement strength and noise sampling offsets.
 - Flower stem lengths and initial rotations.
 - Selected shapes and decorative details.
-- The positions, lengths and movement phases of golden decorative lines.
 - The selection of background elements that participate in animation.
 
 These variations make the garden feel more organic and less repetitive while maintaining a consistent visual style.
@@ -136,27 +150,8 @@ Refreshing the page therefore restarts the animation without generating a differ
 
 This design decision allows the artwork to remain visually consistent while introducing natural movement and subtle variation.
 
-#### Golden Flowing-Light Effect
 
-An additional flowing-light effect was developed for the central golden decoration, one of the distinctive visual elements of Klimt's original painting.
-
-The effect uses a Perlin noise field to generate smoothly changing highlights and shadows across the golden surface.
-
-By gradually shifting the noise sampling coordinates downward over time, the animation creates the appearance of light flowing along the golden decorative elements.
-
-A mask restricts the effect to the golden colour blocks and maintains the correct overlapping relationships with surrounding vegetation.
-
-The movement of the golden colour blocks and the flowing-light effect are controlled independently, allowing the surface lighting to change without disrupting the original composition.
-
-This addition enhances the sense of movement and visual depth while preserving the artwork's central golden structure.
-
-**Key techniques:**
-- `noise()` — Generates smooth changes in the light pattern.
-- Time-based sampling offsets — Create the appearance of flowing light.
-- Graphics masks — Restrict the effect to golden regions.
-- Layered rendering — Maintains correct visual relationships with surrounding vegetation.
-
-### User Input Mechanic
+### 2.5 User Input Mechanic
 
 The User Input Mechanic allows viewers to interact directly with the garden through mouse movement and clicking.
 
@@ -176,7 +171,7 @@ Clicking within the canvas creates a flower at the cursor position. The flower u
 
 This mechanic allows viewers to actively participate in the garden rather than simply observing its animation.
 
-### Classes, Arrays and Shared Data
+### 2.6 Classes, Arrays and Shared Data
 
 Classes organise the garden marks, foreground flowers, falling flowers and trail elements.
 
@@ -184,7 +179,7 @@ Arrays store their instances so that each object can be updated and drawn consis
 
 Shared flower specifications keep the permanent garden flowers and click-generated flowers visually related.
 
-### Code Structure
+### 2.7 Code Structure
 
 Each mechanic is stored in a separate JavaScript file and integrated through the main sketch.
 
