@@ -241,48 +241,43 @@ We used **OpenAI ChatGPT, Codex and OpenAI image generation tools** during proje
 
 ### ChatGPT and Codex
 
-ChatGPT and Codex assisted with:
+ChatGPT and Codex
 
-- Organising the project concept and code structure.
-- Explaining p5.js functions and animation techniques.
-- Generating and refining parts of the drawing and animation code.
-- Debugging movement, masking and layer-order issues.
-- Developing and refining the Perlin Noise movement system.
-- Improving foreground flower and stem movement.
-- Developing the golden flowing-light effect.
-- Supporting the integration of different mechanics.
-- Organising and editing this README.
+ChatGPT was mainly used to explain p5.js concepts, discuss implementation approaches, organise project documentation, and refine the README.
+
+OpenAI Codex assisted with generating, modifying, and debugging parts of the code, particularly:
+
+- Processing garden contours and refining flower rendering.
+
+- Improving flower sway, stem bending, and layer organisation.
+
+- Implementing the golden flowing-light effect using noise, pixel processing, and masking.
+
+- Resolving animation and integration issues.
 
 ### AI Image Generation
 
-OpenAI image generation tools supported visual exploration during concept development.
+OpenAI image generation tools were used during visual exploration to create garden mock-ups, experiment with colours and abstract styles, and develop visual references and interaction illustrations.
 
-AI was used to:
-
-- Generate visual mock-ups of the garden's intended appearance.
-- Explore colour relationships and abstract visual styles.
-- Create interaction illustrations and storyboard references.
-- Support the development of visual references for the coded garden.
-
-AI-generated garden imagery also informed the colour and contour development of the coded scene.
+AI-generated imagery also supported the colour selection and contour development of the coded garden.
 
 ### How AI-Assisted Code Works
 
-The AI-assisted animation code stores stable positions and individual movement parameters for garden elements.
+The garden uses predefined shapes and stable anchor positions rather than generating the entire composition through Perlin Noise.
 
-Perlin noise calculates smooth movement offsets over time, while random values establish differences between elements during initialisation.
+Random values introduce individual variations, while Perlin Noise produces smooth movement offsets for different garden elements.
 
-The golden flowing-light effect combines a moving noise-based light field with a mask that restricts the effect to selected golden regions.
+The golden flowing-light effect uses an animated noise-based light field and masking to keep the highlights within selected golden regions.
 
-The final interactive scene is drawn and animated using p5.js.
+The final scene is rendered and animated using p5.js.
 
 ### Human Contribution and Review
 
-All AI-assisted code was reviewed, tested and modified by group members to meet the project's visual and technical requirements.
+Group members reviewed, tested, and refined the AI-assisted code to achieve the intended visual and interactive outcomes.
 
-The group made the final design decisions, refined the visual outcomes, resolved integration issues and tested the completed implementation.
+The team made the final design decisions, adjusted movement parameters, refined colours and layering, and integrated the different mechanics into a working prototype.
 
-AI-assisted sections are identified in the relevant source-code comments, with explanations of their purpose and functionality.
+AI-assisted implementations and relevant external techniques are acknowledged in the source-code comments.
 
 ---
 
@@ -300,49 +295,25 @@ https://www.xiaohongshu.com/explore/67ff683f000000001201e48b
 
 ### Technical References
 
-**p5.js Official Reference**
 
-https://p5js.org/reference/
+**Ramer–Douglas–Peucker Algorithm**
 
-Used as a reference for p5.js drawing functions, animation, transformations and interaction.
+https://doi.org/10.3138/FM57-6770-U75U-7727
 
-**p5.js — `noise()`**
+Used to simplify the garden's contour data before rendering.
 
-https://p5js.org/reference/p5/noise/
+**Canvas 2D Compositing**
 
-Reference for generating smooth, continuous values used in natural movement and the golden flowing-light effect.
+https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
 
-**p5.js — `random()`**
+Used to mask the golden flowing-light effect within selected regions.
 
-https://p5js.org/reference/p5/random/
+**Smoothstep Interpolation**
 
-Reference for random values used to establish individual visual variation.
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml
 
-**p5.js — `createGraphics()`**
+Used to create smooth transitions between highlights and shadows in the animated light field.
 
-https://p5js.org/reference/p5/createGraphics/
-
-Reference for offscreen graphics buffers used to prepare flower sprites and organise drawing layers.
-
-**p5.js — `translate()`**
-
-https://p5js.org/reference/p5/translate/
-
-Reference for applying positional transformations to animated elements.
-
-**p5.js — `rotate()`**
-
-https://p5js.org/reference/p5/rotate/
-
-Reference for rotating flowers and other garden elements during animation.
-
-**p5.sound — `p5.Amplitude`**
-
-https://p5js.org/reference/p5.sound/p5.Amplitude/
-
-Reference for measuring soundtrack amplitude and controlling audio-responsive visual effects.
-
-Any additional external code examples, tutorials or adapted techniques used during development should be acknowledged in the relevant source-code comments.
 
 ### Audio Credit
 
