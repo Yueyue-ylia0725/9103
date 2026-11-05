@@ -229,12 +229,65 @@ class NoiseGarden {
       && !GARDEN_BLOOMS.some(([x,y,r])=>Math.hypot(m.baseX-x,m.baseY-y)<r+12))
       .filter(()=>random()<0.35).slice(0,NOISE_GARDEN.maxMovingRegions);
     const g=this.baseLayer;g.background('#A8B38E');
-    // Green underpainting is visible only where old foreground flowers were removed.
-    g.noStroke();
-    for(let y=735;y<1010;y+=22)for(let x=0;x<800;x+=24){
-      g.fill(random(['#436745','#6C8C5D','#A8B38E','#538474']));
-      g.rect(x,y,25,23,4);
+    // AI-assisted: continuous foreground paint, independent of flower silhouettes.
+    // Uneven neighbouring cells share edges; existing reference marks paint above them.
+    const foliage=this.marks.filter(m=>{
+      const red=parseInt(m.colour.slice(1,3),16);
+      const green=parseInt(m.colour.slice(3,5),16);
+      const blue=parseInt(m.colour.slice(5,7),16);
+      return m.baseY>690 && green>red*1.02 && green>blue*0.88;
+    });
+    let paintSeed=(seed ^ 0x6d2b79f5)>>>0;
+    const paintRandom=()=>{
+      paintSeed=(Math.imul(paintSeed,1664525)+1013904223)>>>0;
+      return paintSeed/4294967296;
+    };
+    const sites=[];
+    for(let row=0,y=706;y<1050;y+=27,row++){
+      for(let x=-30;x<830;x+=28){
+        const cx=x+(row%2)*14+(paintRandom()-0.5)*22;
+        const cy=y+(paintRandom()-0.5)*22;
+        const nearby=foliage.slice().sort((a,b)=>
+          Math.hypot(a.baseX-cx,a.baseY-cy)-Math.hypot(b.baseX-cx,b.baseY-cy)
+        ).slice(0,8);
+        const source=nearby[Math.floor(paintRandom()*nearby.length)];
+        sites.push({x:cx,y:cy,colour:source?source.colour:'#538474'});
+      }
     }
+    for(const site of sites){
+      let polygon=[[-60,680],[850,680],[850,1060],[-60,1060]];
+      for(const other of sites){
+        if(other===site || Math.hypot(other.x-site.x,other.y-site.y)>110)continue;
+        // Clip to the nearer side of each neighbour's bisector.
+        const nx=other.x-site.x,ny=(other.y-site.y)*0.72;
+        const limit=(other.x*other.x-site.x*site.x+
+          0.72*(other.y*other.y-site.y*site.y))/2;
+        const clipped=[];
+        for(let i=0;i<polygon.length;i++){
+          const a=polygon[i],b=polygon[(i+1)%polygon.length];
+          const da=a[0]*nx+a[1]*ny-limit,db=b[0]*nx+b[1]*ny-limit;
+          if(da<=0)clipped.push(a);
+          if((da<=0)!==(db<=0)){
+            const t=da/(da-db);
+            clipped.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])]);
+          }
+        }
+        polygon=clipped;
+        if(!polygon.length)break;
+      }
+      if(polygon.length<3)continue;
+      // Same quadratic rounding and same-colour seam stroke as NoiseGardenMark.
+      // Extra points retain shared edges while rounding only the small corner tips.
+      const points=[];
+      for(let i=0;i<polygon.length;i++){
+        const a=polygon[i],b=polygon[(i+1)%polygon.length];
+        points.push([a[0]*0.88+b[0]*0.12,a[1]*0.88+b[1]*0.12]);
+        points.push([a[0]*0.12+b[0]*0.88,a[1]*0.12+b[1]*0.88]);
+      }
+      NoiseGardenMark.prototype.display.call({points,colour:site.colour},g);
+    }
+    // Preserve the previous seeded sequence for the existing gold-line geometry.
+    for(let y=735;y<1010;y+=22)for(let x=0;x<800;x+=24)random();
     // Preserve the unpainted ground for ghost-free local gold animation.
     this.goldUnderpaint=g.get();
     for(const mark of this.marks)mark.display(g);
