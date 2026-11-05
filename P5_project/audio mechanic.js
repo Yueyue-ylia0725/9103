@@ -1,3 +1,10 @@
+// Audio mechanic — Liyang Ying
+// Music amplitude controls flower halos.
+// Frequency energy adjusts the golden highlights.
+// ChatGPT and Codex helped explain the code, check its correctness,
+// and revise parts of the implementation.
+// Liyang Ying tested the versions and selected the visual refinements.
+
 let gardenAudioTrack;
 let gardenAmplitude;
 let gardenFFT;
